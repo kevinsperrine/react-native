@@ -25,6 +25,7 @@ const DEVICE_NOTIF_EVENT = 'remoteNotificationReceived';
 const NOTIF_REGISTER_EVENT = 'remoteNotificationsRegistered';
 const NOTIF_REGISTRATION_ERROR_EVENT = 'remoteNotificationRegistrationError';
 const DEVICE_LOCAL_NOTIF_EVENT = 'localNotificationReceived';
+const DEVICE_WILLSHOW_NOTIF_EVENT = 'willPresentNotification';
 
 export type ContentAvailable = 1 | null | void;
 
@@ -59,6 +60,11 @@ export type PushNotificationEventName = $Enum<{
    * handler will be invoked with {message: string, code: number, details: any}.
    */
   registrationError: string,
+  /**
+   * Fired when a local notification will be presented in the foreground. The handler
+   * will be invoked with an instance of `PushNotificationIOS`. (Only available iOS 10 >)
+   */
+  willPresent: string
 }>;
 
 /**
@@ -221,6 +227,13 @@ class PushNotificationIOS {
           handler(errorInfo);
         },
       );
+    } else if (type === 'willPresent') {
+      listener = PushNotificationEmitter.addListener(
+        DEVICE_WILLSHOW_NOTIF_EVENT,
+        (notifData) => {
+          handler(new PushNotificationIOS(notifData));
+        }
+      )
     }
     _notifHandlers.set(type, listener);
   }
@@ -236,11 +249,8 @@ class PushNotificationIOS {
     handler: Function,
   ) {
     invariant(
-      type === 'notification' ||
-        type === 'register' ||
-        type === 'registrationError' ||
-        type === 'localNotification',
-      'PushNotificationIOS only supports `notification`, `register`, `registrationError`, and `localNotification` events',
+      type === 'notification' || type === 'register' || type === 'registrationError' || type === 'localNotification' || type === 'willPresent',
+      'PushNotificationIOS only supports `notification`, `register`, `registrationError`, `localNotification` and `willPresent` events'
     );
     const listener = _notifHandlers.get(type);
     if (!listener) {
