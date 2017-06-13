@@ -190,8 +190,8 @@ class PushNotificationIOS {
    *
    * See https://facebook.github.io/react-native/docs/pushnotificationios.html#presentlocalnotification
    */
-  static presentLocalNotification(details: Object) {
-    RCTPushNotificationManager.presentLocalNotification(details);
+  static presentLocalNotification(details: Object, callback: Function) {
+    RCTPushNotificationManager.presentLocalNotification(details, callback);
   }
 
   /**
@@ -199,8 +199,8 @@ class PushNotificationIOS {
    *
    * See https://facebook.github.io/react-native/docs/pushnotificationios.html#schedulelocalnotification
    */
-  static scheduleLocalNotification(details: Object) {
-    RCTPushNotificationManager.scheduleLocalNotification(details);
+  static scheduleLocalNotification(details: Object, callback: Function) {
+    RCTPushNotificationManager.scheduleLocalNotification(details, callback);
   }
 
   /**
