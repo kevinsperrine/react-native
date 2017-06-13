@@ -12,9 +12,7 @@
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTUtils.h>
 
-#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 @import CoreLocation;
-#endif
 
 NSString *const RCTLocalNotificationReceived = @"LocalNotificationReceived";
 NSString *const RCTRemoteNotificationReceived = @"RemoteNotificationReceived";
@@ -30,6 +28,7 @@ static NSString *const kRemoteNotificationRegistrationFailed = @"RemoteNotificat
 static NSString *const kErrorUnableToRequestPermissions = @"E_UNABLE_TO_REQUEST_PERMISSIONS";
 
 #if !TARGET_OS_TV
+
 @implementation RCTConvert (NSCalendarUnit)
 
 RCT_ENUM_CONVERTER(NSCalendarUnit,
@@ -65,16 +64,6 @@ RCT_ENUM_CONVERTER(NSCalendarUnit,
 }
 
 @end
-
-#endif //TARGET_OS_TV
-
-@interface RCTPushNotificationManager ()
-@property (nonatomic, strong) NSMutableDictionary *remoteNotificationCallbacks;
-@property (nonatomic, strong) NSMutableDictionary *willPresentNotificationCallbacks;
-@property (nonatomic, strong) NSMutableDictionary *responseCallbacks;
-@end
-
-#if !TARGET_OS_TV
 
 @implementation RCTConvert (UILocalNotification)
 
@@ -319,13 +308,19 @@ RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
 
 @end
 
+@interface RCTPushNotificationManager ()
+@property (nonatomic, strong) NSMutableDictionary *remoteNotificationCallbacks;
+@property (nonatomic, strong) NSMutableDictionary *willPresentNotificationCallbacks;
+@property (nonatomic, strong) NSMutableDictionary *responseCallbacks;
+@end
+
 #endif //TARGET_OS_TV
 
 @implementation RCTPushNotificationManager
 {
   RCTPromiseResolveBlock _requestPermissionsResolveBlock;
 }
-
+                   
 #if !TARGET_OS_TV
 
 static NSDictionary *RCTFormatNotificationTrigger(UNNotificationTrigger *trigger)
@@ -387,7 +382,7 @@ static NSDictionary *RCTFormatNotificationTrigger(UNNotificationTrigger *trigger
 
   return formattedNotificationTrigger;
 }
-
+                   
 static NSDictionary *RCTFormatNotificationRequest(UNNotificationRequest *request)
 {
   NSMutableDictionary *formattedNotificationRequest = [NSMutableDictionary dictionary];
@@ -426,7 +421,7 @@ static NSDictionary *RCTFormatNotificationRequest(UNNotificationRequest *request
 
   return formattedNotificationRequest;
 }
-
+                   
 static NSDictionary *RCTFormatNotification(UNNotification *notification)
 {
   NSMutableDictionary *formattedLocalNotification = [NSMutableDictionary dictionary];
@@ -442,7 +437,7 @@ static NSDictionary *RCTFormatNotification(UNNotification *notification)
 
   return formattedLocalNotification;
 }
-
+                   
 static NSDictionary *RCTFormatLocalNotification(UILocalNotification *notification)
 {
   NSMutableDictionary *formattedLocalNotification = [NSMutableDictionary dictionary];
@@ -466,7 +461,7 @@ static NSDictionary *RCTFormatLocalNotification(UILocalNotification *notificatio
   formattedLocalNotification[@"remote"] = @NO;
   return formattedLocalNotification;
 }
-
+                   
 #endif //TARGET_OS_TV
 
 RCT_EXPORT_MODULE()
