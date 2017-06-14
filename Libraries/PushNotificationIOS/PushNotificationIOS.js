@@ -168,7 +168,7 @@ class PushNotificationIOS {
     ResultFailed: 'UIBackgroundFetchResultFailed',
   };
 
-  static PresentationOptions: PresentationOptions = {
+  static PresentationOption: PresentationOption = {
     Badge: 'UNNotificationPresentationOptionBadge',
     Sound: 'UNNotificationPresentationOptionSound',
     Alert: 'UNNotificationPresentationOptionAlert',
@@ -191,7 +191,7 @@ class PushNotificationIOS {
    * See https://facebook.github.io/react-native/docs/pushnotificationios.html#presentlocalnotification
    */
   static presentLocalNotification(details: Object, callback: Function) {
-    RCTPushNotificationManager.presentLocalNotification(details, callback ?: () => {});
+    RCTPushNotificationManager.presentLocalNotification(details, callback || function(){});
   }
 
   /**
@@ -200,7 +200,7 @@ class PushNotificationIOS {
    * See https://facebook.github.io/react-native/docs/pushnotificationios.html#schedulelocalnotification
    */
   static scheduleLocalNotification(details: Object, callback: Function) {
-    RCTPushNotificationManager.scheduleLocalNotification(details, callback ?: () => {});
+    RCTPushNotificationManager.scheduleLocalNotification(details, callback || function(){});
   }
 
   /**
@@ -280,7 +280,7 @@ class PushNotificationIOS {
   static setNotificationCategories(categories: [Object]) {
     RCTPushNotificationManager.setNotificationCategories(categories);
   }
-  
+
 
   /**
    * Attaches a listener to remote or local notification events while the app
@@ -371,8 +371,8 @@ class PushNotificationIOS {
     handler: Function,
   ) {
     invariant(
-      type === 'notification' || type === 'register' || type === 'registrationError' || type === 'localNotification' || type === 'willPresent',
-      'PushNotificationIOS only supports `notification`, `register`, `registrationError`, `localNotification` and `willPresent` events'
+      type === 'notification' || type === 'register' || type === 'registrationError' || type === 'localNotification' || type === 'willPresent' || type === 'response',
+      'PushNotificationIOS only supports `notification`, `register`, `registrationError`, and `localNotification` events'
     );
     const listener = _notifHandlers.get(type);
     if (!listener) {
@@ -554,13 +554,13 @@ class PushNotificationIOS {
    *
    * If you do not call this method the notification will not be shown in the foreground.
    */
-  presentForeground(presentationOptions: [Object]) {
+  presentForeground(presentationOptions: [PresentationOption]) {
     if (!this._notificationId || this._showForegroundCompleteCallbackCalled) {
       return;
     }
     this._showForegroundCompleteCallbackCalled = true;
 
-    RCTPushNotificationManager.onPresentForegroundNotification(this._notificationId, )
+    RCTPushNotificationManager.onPresentForegroundNotification(this._notificationId, presentationOptions)
   }
 
   /**
@@ -644,6 +644,20 @@ class PushNotificationIOS {
    */
   getId(): ?string {
     return this._notificationId;
+  }
+
+  /**
+   * Get's the notifcation's title
+   */
+  getTitle(): ?string {
+    return this._title;
+  }
+
+  /**
+   * Get's the notification's subtitle
+   */
+  getSubtitle(): ?string {
+    return this._subtitle;
   }
 }
 
