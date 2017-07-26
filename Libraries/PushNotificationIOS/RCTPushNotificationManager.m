@@ -230,7 +230,7 @@ RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
   } else {
     trigger = [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:timeInterval repeats:repeats];
   }
-  
+
   UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:[RCTConvert NSString:details[@"notificationId"]] ?: [NSUUID new].UUIDString content:content trigger:trigger];
   return request;
 }
@@ -321,7 +321,7 @@ RCT_ENUM_CONVERTER(UIBackgroundFetchResult, (@{
 {
   RCTPromiseResolveBlock _requestPermissionsResolveBlock;
 }
-                   
+
 #if !TARGET_OS_TV
 
 static NSDictionary *RCTFormatNotificationTrigger(UNNotificationTrigger *trigger)
@@ -383,7 +383,7 @@ static NSDictionary *RCTFormatNotificationTrigger(UNNotificationTrigger *trigger
 
   return formattedNotificationTrigger;
 }
-                   
+
 static NSDictionary *RCTFormatNotificationRequest(UNNotificationRequest *request)
 {
   NSMutableDictionary *formattedNotificationRequest = [NSMutableDictionary dictionary];
@@ -422,7 +422,7 @@ static NSDictionary *RCTFormatNotificationRequest(UNNotificationRequest *request
 
   return formattedNotificationRequest;
 }
-                   
+
 static NSDictionary *RCTFormatNotification(UNNotification *notification)
 {
   NSMutableDictionary *formattedLocalNotification = [NSMutableDictionary dictionary];
@@ -438,7 +438,7 @@ static NSDictionary *RCTFormatNotification(UNNotification *notification)
 
   return formattedLocalNotification;
 }
-                   
+
 static NSDictionary *RCTFormatLocalNotification(UILocalNotification *notification)
 {
   NSMutableDictionary *formattedLocalNotification = [NSMutableDictionary dictionary];
@@ -462,7 +462,7 @@ static NSDictionary *RCTFormatLocalNotification(UILocalNotification *notificatio
   formattedLocalNotification[@"remote"] = @NO;
   return formattedLocalNotification;
 }
-                   
+
 #endif //TARGET_OS_TV
 
 RCT_EXPORT_MODULE()
@@ -959,15 +959,22 @@ RCT_EXPORT_METHOD(requestPermissions:(NSDictionary *)permissions resolver:(RCTPr
     [notificationCenter requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
       if (error) {
         reject(error.domain, error.localizedDescription, error);
+		welf.requestPermissionsResolveBlock = nil;
       } else if (!granted) {
         reject(RCTErrorRemoteNotificationRegistrationFailed, nil, RCTErrorWithMessage(@"Push notification permissions weren't granted"));
+		welf.requestPermissionsResolveBlock = nil;
       } else {
         [RCTSharedApplication() registerForRemoteNotifications];
+		NSDictionary *notificationTypes = @{
+											  @"alert": @((types & UNAuthorizationOptionAlert) > 0),
+											  @"sound": @((types & UNAuthorizationOptionSound) > 0),
+											  @"badge": @((types & UNAuthorizationOptionSound) > 0),
+											  };
+		welf.requestPermissionsResolveBlock(notificationTypes);
+		welf.requestPermissionsResolveBlock = nil;
       }
     }];
-
   } else {
-
     UIUserNotificationType types = UIUserNotificationTypeNone;
     if (permissions) {
       if ([RCTConvert BOOL:permissions[@"alert"]]) {
