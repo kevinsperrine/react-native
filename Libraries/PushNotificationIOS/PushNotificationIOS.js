@@ -472,9 +472,10 @@ class PushNotificationIOS {
       Object.keys(nativeNotif).forEach(notifKey => {
         const notifVal = nativeNotif[notifKey];
         if (notifKey === 'aps') {
-          this._alert = notifVal.alert;
-          this._sound = notifVal.sound;
-          this._badgeCount = notifVal.badge;
+          // Fallbacks for new iOS 10 notification format which returns in the same format as local notifications
+          this._alert = notifVal.alert || notifVal.alertBody;
+          this._sound = notifVal.sound || notifVal.soundName;
+          this._badgeCount = notifVal.badge || nativeNotif.applicationIconBadgeNumber;
           this._title = notifVal.alertTitle;
           this._subtitle = notifVal.alertSubtitle;
           this._category = notifVal.category;
